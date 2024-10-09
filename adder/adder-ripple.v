@@ -1,8 +1,8 @@
-/* ACM Class System (I) Fall Assignment 1 
+/* ACM Class System (I) Fall Assignment 1
  *
  *
- * Implement your naive adder here
- * 
+ * Implement your ripple adder here
+ *
  * GUIDE:
  *   1. Create a RTL project in Vivado
  *   2. Put this file into `Sources'
@@ -14,15 +14,29 @@
  */
 
 module adder(
-	// TODO: Write the ports of this module here
-	//
-	// Hint: 
-	//   The module needs 4 ports, 
-	//     the first 2 ports are 16-bit unsigned numbers as the inputs of the adder
-	//     the third port is a 16-bit unsigned number as the output
-	//	   the forth port is a one bit port as the carry flag
-	// 
+	input       [15:0]          a,
+    input       [15:0]          b,
+    output reg  [15:0]          sum,
+	output reg  carry
 );
-	// TODO: Implement this module here
-	
+	wire [15:0] P, G;
+	wire [16:0] C;
+
+	assign P = a ^ b;
+	assign G = a & b;
+
+	assign C[0] = 1'b0;
+
+	generate
+		genvar i;
+		for (i = 0; i < 16; i = i + 1) begin : gen
+			assign C[i+1] = (G[i] | (P[i] & C[i]));
+		end
+	endgenerate
+
+	always @(*) begin
+		sum = P ^ C[15:0];
+		carry = C[16];
+	end
+
 endmodule
