@@ -12,6 +12,9 @@ initial_data = [
     "79 79",
     "fd e8",
     "12 8f",    # Subnormal case
+    "7f 00",    # NaN case
+    "ff 00",
+    "ff ff"
 ]
 
 def generate_hex_pair():
