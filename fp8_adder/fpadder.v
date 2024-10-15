@@ -33,9 +33,9 @@ endmodule
 module normalize (
     input [18:0] abs_val,
     output reg [4:0] leading_zeros, // range: 2 - 17
-    output reg [7:0] normalized_val // zero-padded 8-bit value
+    output reg [8:0] normalized_val // zero-padded 8-bit value
 );
-    reg [7:0] normalized;
+    reg [8:0] normalized;
 
     always @(*) begin
         // Initialize leading zeros
@@ -63,10 +63,10 @@ module normalize (
         else                  leading_zeros = 17; // Subnormal case
 
         // Normalize the abs_val by shifting left based on the detected leading zeros
-        // normalized_val = (abs_val[17:0] >> (12 - leading_zeros));
-        normalized = (leading_zeros <= 12) ?
-                 (abs_val[17:0] >> (12 - leading_zeros)) :
-                 (abs_val[17:0] << (leading_zeros - 12));
+        // normalized_val = (abs_val[17:0] >> (11 - leading_zeros));
+        normalized = (leading_zeros <= 11) ?
+                 (abs_val[17:0] >> (11 - leading_zeros)) :
+                 (abs_val[17:0] << (leading_zeros - 11));
         normalized_val = (leading_zeros == 17) ? normalized >> 1 : normalized;
     end
 
@@ -83,7 +83,7 @@ module int_to_fp8 (
     wire [3:0] exponent;
     wire [3:0] exponent_adjusted;
     wire [2:0] mantissa;
-    wire [7:0] normalized_val;
+    wire [8:0] normalized_val;
 
     assign sign = int_val[19];
     assign abs_val = sign ? -int_val[18:0] : int_val[18:0];
@@ -98,10 +98,10 @@ module int_to_fp8 (
     // Calculate exponent and mantissa
     assign exponent = 5'd17 - leading_zeros; // 20 - leading_zeros - 1 - 9 + 7 = 17
     assign exponent_adjusted = exponent == 4'd0 ? 4'd0001 : exponent;  // For subnormal, shift by 1
-    assign mantissa = normalized_val[6:4];
+    assign mantissa = normalized_val[7:5];
 
     // Rounding (round to nearest, ties to even)
-    wire round_up = normalized_val[3] & (normalized_val[2] | normalized_val[1] | normalized_val[0] | mantissa[0]);
+    wire round_up = normalized_val[4] & (normalized_val[3] | normalized_val[2] | normalized_val[1] | normalized_val[0] | mantissa[0]);
 
     // Saturation and final FP8 value assignment
     always @(*) begin

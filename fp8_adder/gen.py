@@ -5,6 +5,7 @@ initial_data = [
     "09 63",
     "a2 68",
     "1a 2a",
+    "61 bf",
     "0d 8d",    # Zero case
     "00 00",
     "f9 f9",    # Overflow case
@@ -29,4 +30,4 @@ for data in initial_data:
     print(data)
 
 # Generate 1000 hex pairs
-generate_hex_pairs(100)
+generate_hex_pairs(1000)
